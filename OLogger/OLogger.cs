@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 
@@ -9,8 +10,8 @@ namespace OLog
     /// </summary>
     public class OLogger
     {
+        private static readonly object _lock = new object();
         private readonly string _path;
-        private object _lock = new object();
 
         /// <summary>
         /// Enabling this property will lead to the logging messages being written to the console aswell.
@@ -41,9 +42,13 @@ namespace OLog
         /// <param name="message">The error message to log</param>
         /// <param name="outgoingClass">The class from which the error accured</param>
         /// <returns></returns>
-        public LogInformation Info(string message, Type loggedFromThisClassType)
+        public LogInformation Info(string message)
         {
-            return LogTheMessage(message, loggedFromThisClassType, LogMessageType.INFO);
+            var frame = new StackFrame(1);
+            var callerType = frame.GetMethod().DeclaringType.Name;
+            var callerLineNumber = frame.GetFileLineNumber();
+
+            return LogTheMessage(message, callerType, callerLineNumber, LogMessageType.INFO);
         }
 
         /// <summary>
@@ -52,9 +57,13 @@ namespace OLog
         /// <param name="message">The error message to log</param>
         /// <param name="outgoingClass">The class from which the error accured</param>
         /// <returns></returns>
-        public LogInformation Error(string message, Type loggedFromThisClassType)
+        public LogInformation Error(string message)
         {
-            return LogTheMessage(message, loggedFromThisClassType, LogMessageType.ERROR);
+            var frame = new StackFrame(1);
+            var callerType = frame.GetMethod().DeclaringType.Name;
+            var callerLineNumber = frame.GetFileLineNumber();
+
+            return LogTheMessage(message, callerType, callerLineNumber, LogMessageType.ERROR);
         }
 
         /// <summary>
@@ -63,9 +72,13 @@ namespace OLog
         /// <param name="message">The error message to log</param>
         /// <param name="outgoingClass">The class from which the error accured</param>
         /// <returns></returns>
-        public LogInformation Warn(string message, Type loggedFromThisClassType)
+        public LogInformation Warn(string message)
         {
-            return LogTheMessage(message, loggedFromThisClassType, LogMessageType.WARNING);
+            var frame = new StackFrame(1);
+            var callerType = frame.GetMethod().DeclaringType.Name;
+            var callerLineNumber = frame.GetFileLineNumber();
+
+            return LogTheMessage(message, callerType, callerLineNumber, LogMessageType.WARNING);
         }
 
         /// <summary>
@@ -75,7 +88,7 @@ namespace OLog
         /// <param name="loggedFromThisClassType"></param>
         /// <param name="type"></param>
         /// <returns></returns>
-        private LogInformation LogTheMessage(string message, Type loggedFromThisClassType, LogMessageType type)
+        private LogInformation LogTheMessage(string message, string callerType, int callerLineNumber, LogMessageType type)
         {
             Monitor.Enter(_lock);
             LogInformation logInformation = null;
@@ -85,7 +98,7 @@ namespace OLog
                 case LogMessageType.WARNING:
                     logInformation = new LogInformation
                     {
-                        Message = DateTime.Now.ToString() + " WARNING " + loggedFromThisClassType.FullName + " - " + message,
+                        Message = DateTime.Now.ToString() + " WARNING " + callerType + " Line: " + callerLineNumber + " - " + message,
                         Type = LogMessageType.WARNING
                     };
                     break;
@@ -93,7 +106,7 @@ namespace OLog
                 case LogMessageType.ERROR:
                     logInformation = new LogInformation
                     {
-                        Message = DateTime.Now.ToString() + " ERROR " + loggedFromThisClassType.FullName + " - " + message,
+                        Message = DateTime.Now.ToString() + " ERROR " + callerType + " Line: " + callerLineNumber + " - " + message,
                         Type = LogMessageType.ERROR
                     };
                     break;
@@ -101,7 +114,7 @@ namespace OLog
                 case LogMessageType.INFO:
                     logInformation = new LogInformation
                     {
-                        Message = DateTime.Now.ToString() + " INFO " + loggedFromThisClassType.FullName + " - " + message,
+                        Message = DateTime.Now.ToString() + " INFO " + callerType + " Line: " + callerLineNumber + " - " + message,
                         Type = LogMessageType.INFO
                     };
                     break;
@@ -131,6 +144,8 @@ namespace OLog
                     Console.ForegroundColor = ConsoleColor.Cyan;
                     Console.WriteLine(message.Message);
                     Console.ResetColor();
+
+                    System.Diagnostics.Trace.Write("sdadasds");
                     break;
 
                 case LogMessageType.ERROR:
