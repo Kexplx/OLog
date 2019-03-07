@@ -69,38 +69,12 @@ namespace OLog
         }
 
         /// <summary>
-        /// Logs a message of type <seealso cref="LogMessageType.FATAL"/>
+        /// Logs the message using Thread Safety
         /// </summary>
-        /// <param name="message">The error message to log</param>
-        /// <param name="outgoingClass">The class from which the error accured</param>
+        /// <param name="message"></param>
+        /// <param name="loggedFromThisClassType"></param>
+        /// <param name="type"></param>
         /// <returns></returns>
-        public LogInformation Fatal(string message, Type loggedFromThisClassType)
-        {
-            return LogTheMessage(message, loggedFromThisClassType, LogMessageType.FATAL);
-        }
-
-        /// <summary>
-        /// Logs a message of type <seealso cref="LogMessageType.FINALINFO"/>
-        /// </summary>
-        /// <param name="message">The error message to log</param>
-        /// <param name="outgoingClass">The class from which the error accured</param>
-        /// <returns></returns>
-        public LogInformation FinalInfo(string message, Type loggedFromThisClassType)
-        {
-            return LogTheMessage(message, loggedFromThisClassType, LogMessageType.FINALINFO);
-        }
-
-        /// <summary>
-        /// Logs a message of type <seealso cref="LogMessageType.CANCELINFO"/>
-        /// </summary>
-        /// <param name="message">The error message to log</param>
-        /// <param name="outgoingClass">The class from which the error accured</param>
-        /// <returns></returns>
-        public LogInformation CancelInfo(string message, Type loggedFromThisClassType)
-        {
-            return LogTheMessage(message, loggedFromThisClassType, LogMessageType.CANCELINFO);
-        }
-
         private LogInformation LogTheMessage(string message, Type loggedFromThisClassType, LogMessageType type)
         {
             Monitor.Enter(_lock);
@@ -129,30 +103,6 @@ namespace OLog
                     {
                         Message = DateTime.Now.ToString() + " INFO " + loggedFromThisClassType.FullName + " - " + message,
                         Type = LogMessageType.INFO
-                    };
-                    break;
-
-                case LogMessageType.FATAL:
-                    logInformation = new LogInformation
-                    {
-                        Message = DateTime.Now.ToString() + " FATAL " + loggedFromThisClassType.FullName + " - " + message,
-                        Type = LogMessageType.FATAL
-                    };
-                    break;
-
-                case LogMessageType.FINALINFO:
-                    logInformation = new LogInformation
-                    {
-                        Message = DateTime.Now.ToString() + " FINALINFO " + loggedFromThisClassType.FullName + " - " + message,
-                        Type = LogMessageType.FINALINFO
-                    };
-                    break;
-
-                case LogMessageType.CANCELINFO:
-                    logInformation = new LogInformation
-                    {
-                        Message = DateTime.Now.ToString() + " CANCELINFO " + loggedFromThisClassType.FullName + " - " + message,
-                        Type = LogMessageType.CANCELINFO
                     };
                     break;
             }
