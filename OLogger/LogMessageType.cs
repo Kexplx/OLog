@@ -8,8 +8,5 @@
         INFO,
         ERROR,
         WARNING,
-        FINALINFO,
-        FATAL,
-        CANCELINFO
     }
 }
