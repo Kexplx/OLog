@@ -4,3 +4,8 @@ C:\Users\Oscar Rosner\Documents\Visual Studio 2017\Projects\OLogger\OLogger\obj\
 C:\Users\Oscar Rosner\Documents\Visual Studio 2017\Projects\OLogger\OLogger\obj\Debug\OLog.csproj.CoreCompileInputs.cache
 C:\Users\Oscar Rosner\Documents\Visual Studio 2017\Projects\OLogger\OLogger\obj\Debug\OLogger.dll
 C:\Users\Oscar Rosner\Documents\Visual Studio 2017\Projects\OLogger\OLogger\obj\Debug\OLogger.pdb
+C:\Users\oscar\source\repos\OLog\OLogger\bin\Debug\OLogger.dll
+C:\Users\oscar\source\repos\OLog\OLogger\bin\Debug\OLogger.pdb
+C:\Users\oscar\source\repos\OLog\OLogger\obj\Debug\OLog.csproj.CoreCompileInputs.cache
+C:\Users\oscar\source\repos\OLog\OLogger\obj\Debug\OLogger.dll
+C:\Users\oscar\source\repos\OLog\OLogger\obj\Debug\OLogger.pdb

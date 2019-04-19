@@ -10,7 +10,7 @@ namespace OLog
     /// </summary>
     public class OLogger
     {
-        private static readonly object _lock = new object();
+        private static readonly object _o = new object();
         private readonly string _path;
 
         /// <summary>
@@ -23,17 +23,17 @@ namespace OLog
         }
 
         /// <summary>
-        /// Initializes the logger and appends to the file under <paramref name="fileNameInBinFolder"/>.
+        /// Initializes the logger and appends to the file under <paramref name="fileName"/>.
         /// If the files doesn't exist it will be created
         /// </summary>
-        /// <param name="fileNameInBinFolder">The path of the created LogFile</param>
+        /// <param name="fileName">The path of the created LogFile</param>
         /// <param name="logToConsoleEnabled">Also write to the console, if enabled</param>
-        public OLogger(string fileNameInBinFolder, bool logToConsoleEnabled = false)
+        public OLogger(string fileName, bool logToConsoleEnabled = false)
         {
             LogToConsoleEnabled = logToConsoleEnabled;
-            _path = fileNameInBinFolder;
+            _path = fileName;
 
-            using (var stream = File.Open(fileNameInBinFolder, FileMode.OpenOrCreate)) { }
+            using (var stream = File.Open(fileName, FileMode.OpenOrCreate)) { }
         }
 
         /// <summary>
@@ -44,8 +44,8 @@ namespace OLog
         /// <returns></returns>
         public LogInformation Info(string message)
         {
-            var frame = new StackFrame(1);
-            var callerType = frame.GetMethod().DeclaringType.Name;
+            var frame = new StackFrame(1, true);
+            var callerType = frame.GetMethod().DeclaringType.FullName;
             var callerLineNumber = frame.GetFileLineNumber();
 
             return LogTheMessage(message, callerType, callerLineNumber, LogMessageType.INFO);
@@ -59,8 +59,8 @@ namespace OLog
         /// <returns></returns>
         public LogInformation Error(string message)
         {
-            var frame = new StackFrame(1);
-            var callerType = frame.GetMethod().DeclaringType.Name;
+            var frame = new StackFrame(1, true);
+            var callerType = frame.GetMethod().DeclaringType.FullName;
             var callerLineNumber = frame.GetFileLineNumber();
 
             return LogTheMessage(message, callerType, callerLineNumber, LogMessageType.ERROR);
@@ -74,8 +74,8 @@ namespace OLog
         /// <returns></returns>
         public LogInformation Warn(string message)
         {
-            var frame = new StackFrame(1);
-            var callerType = frame.GetMethod().DeclaringType.Name;
+            var frame = new StackFrame(1, true);
+            var callerType = frame.GetMethod().DeclaringType.FullName;
             var callerLineNumber = frame.GetFileLineNumber();
 
             return LogTheMessage(message, callerType, callerLineNumber, LogMessageType.WARNING);
@@ -90,41 +90,42 @@ namespace OLog
         /// <returns></returns>
         private LogInformation LogTheMessage(string message, string callerType, int callerLineNumber, LogMessageType type)
         {
-            Monitor.Enter(_lock);
-            LogInformation logInformation = null;
-
-            switch (type)
+            lock (_o)
             {
-                case LogMessageType.WARNING:
-                    logInformation = new LogInformation
-                    {
-                        Message = DateTime.Now.ToString() + " WARNING " + callerType + " Line: " + callerLineNumber + " - " + message,
-                        Type = LogMessageType.WARNING
-                    };
-                    break;
+                LogInformation logInformation = null;
 
-                case LogMessageType.ERROR:
-                    logInformation = new LogInformation
-                    {
-                        Message = DateTime.Now.ToString() + " ERROR " + callerType + " Line: " + callerLineNumber + " - " + message,
-                        Type = LogMessageType.ERROR
-                    };
-                    break;
+                switch (type)
+                {
+                    case LogMessageType.WARNING:
+                        logInformation = new LogInformation
+                        {
+                            Message = DateTime.Now.Date.ToString("dd-MM-yyyy") + " | " + DateTime.Now.ToString("hh:mm:ss") + " | " + "WARNING".PadRight(7)  + (" | " + callerType).PadRight(25) + " | " + ("Ln. " + callerLineNumber).PadRight(7) + " | " + message,
+                            Type = LogMessageType.WARNING
+                        };
+                        break;
 
-                case LogMessageType.INFO:
-                    logInformation = new LogInformation
-                    {
-                        Message = DateTime.Now.ToString() + " INFO " + callerType + " Line: " + callerLineNumber + " - " + message,
-                        Type = LogMessageType.INFO
-                    };
-                    break;
+                    case LogMessageType.ERROR:
+                        logInformation = new LogInformation
+                        {
+                            Message = DateTime.Now.Date.ToString("dd-MM-yyyy") + " | " + DateTime.Now.ToString("hh:mm:ss") + " | " + "ERROR".PadRight(7) + (" | " + callerType).PadRight(25) + " | " + ("Ln. " + callerLineNumber).PadRight(7) + " | " + message,
+                            Type = LogMessageType.ERROR
+                        };
+                        break;
+
+                    case LogMessageType.INFO:
+                        logInformation = new LogInformation
+                        {
+                            Message = DateTime.Now.Date.ToString("dd-MM-yyyy") + " | " + DateTime.Now.ToString("hh:mm:ss") + " | " + "INFO".PadRight(7) + (" | " + callerType).PadRight(25) + " | " + ("Ln. " + callerLineNumber).PadRight(7) + " | " + message,
+                            Type = LogMessageType.INFO
+                        };
+                        break;
+                }
+
+                File.AppendAllText(_path, logInformation.Message + Environment.NewLine);
+                WriteToConsole(logInformation);
+
+                return logInformation;
             }
-
-            File.AppendAllText(_path, logInformation.Message + Environment.NewLine);
-            WriteToConsole(logInformation);
-
-            Monitor.Exit(_lock);
-            return logInformation;
         }
 
         /// <summary>
@@ -145,7 +146,7 @@ namespace OLog
                     Console.WriteLine(message.Message);
                     Console.ResetColor();
 
-                    System.Diagnostics.Trace.Write("sdadasds");
+                    Trace.Write("sdadasds");
                     break;
 
                 case LogMessageType.ERROR:

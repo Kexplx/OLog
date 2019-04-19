@@ -8,3 +8,4 @@ C:\Users\Oscar\source\repos\OLog\OLogger\bin\Release\OLogger.pdb
 C:\Users\Oscar\source\repos\OLog\OLogger\obj\Release\OLog.csproj.CoreCompileInputs.cache
 C:\Users\Oscar\source\repos\OLog\OLogger\obj\Release\OLogger.dll
 C:\Users\Oscar\source\repos\OLog\OLogger\obj\Release\OLogger.pdb
+C:\Users\oscar\source\repos\OLog\OLogger\obj\Release\OLog.csprojAssemblyReference.cache
